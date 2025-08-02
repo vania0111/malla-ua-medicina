@@ -1,14 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Malla Obstetricia</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; }
-        h1 { color: darkred; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Malla Interactiva Medicina</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .ramo {
+      background: #e0e0e0;
+      padding: 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .ramo:hover {
+      background: #c5e1a5;
+    }
+    .ramo.aprobado {
+      text-decoration: line-through;
+      background: #aed581;
+    }
+    .ramo.bloqueado {
+      background: #eeeeee;
+      cursor: not-allowed;
+      color: #999;
+    }
+  </style>
 </head>
 <body>
-    <h1>Malla Curricular de Obstetricia</h1>
-    <p>Contenido aquí...</p>
+  <h1>Malla Interactiva - Medicina (Ejemplo)</h1>
+  <div class="grid" id="malla"></div>
+
+  <script>
+    const ramos = [
+      { id: 1, nombre: "Bases Científicas I", prereqs: [] },
+      { id: 7, nombre: "Bases Científicas III", prereqs: [1, 7] },
+      { id: 13, nombre: "Bases Científicas IV", prereqs: [13, 15] },
+      { id: 15, nombre: "Patología y Anatomía Patológica", prereqs: [13, 15] },
+      { id: 19, nombre: "Fisiopatología", prereqs: [19, 20] },
+      { id: 22, nombre: "Farmacología General", prereqs: [19, 22] },
+      { id: 26, nombre: "Farmacología Aplicada Clínica", prereqs: [26] },
+      { id: 30, nombre: "Metodología Investigación", prereqs: [17] }
+    ];
+
+    const estado = {}; // Guarda qué ramos están aprobados
+
+    function puedeActivarse(ramo) {
+      return ramo.prereqs.every(id => estado[id]);
+    }
+
+    function render() {
+      const contenedor = document.getElementById("malla");
+      contenedor.innerHTML = "";
+
+      ramos.forEach(ramo => {
+        const div = document.createElement("div");
+        div.classList.add("ramo");
+        div.textContent = `#${ramo.id} - ${ramo.nombre}`;
+
+        const aprobado = estado[ramo.id];
+        const activo = puedeActivarse(ramo);
+
+        if (aprobado) div.classList.add("aprobado");
+        else if (!activo && ramo.prereqs.length > 0) div.classList.add("bloqueado");
+
+        div.onclick = () => {
+          if (!activo && !aprobado && ramo.prereqs.length > 0) return;
+          estado[ramo.id] = !estado[ramo.id];
+          render();
+        };
+
+        contenedor.appendChild(div);
+      });
+    }
+
+    render();
+  </script>
 </body>
 </html>
